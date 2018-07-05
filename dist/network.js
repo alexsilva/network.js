@@ -602,7 +602,6 @@ var BandwidthModule = (function (_HttpModule) {
                 this._isRestarting = false;
                 this.trigger('end', this._avgSpeed, this._speedRecords);
             }
-
             // The request ended to early, restart it with an increased data size.
             else {
                     var dataSettings = this.settings().data,
@@ -611,8 +610,13 @@ var BandwidthModule = (function (_HttpModule) {
                     this.settings({ data: { size: size } });
                     this.trigger('restart', size);
 
+                if (!this._intendedEnd) {
                     this._isRestarting = true;
                     this.start();
+                } else {
+                    this._isRestarting = false;
+                    this.trigger('end', this._avgSpeed, this._speedRecords);
+                }
                 }
 
             return this;
