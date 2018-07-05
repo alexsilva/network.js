@@ -485,9 +485,17 @@ var BandwidthModule = (function (_HttpModule) {
             // of a bug in Chrome (tested in v33.0.1750.146), causing a freeze of the page while trying to directly upload
             // an ArrayBuffer (through an ArrayBufferView). The freeze lasts nearly 4.5s for 10MB of data. Using a Blob
             // seems to solve the problem.
-            var blob = loadingType == 'upload' ? new Blob([new ArrayBuffer(dataSettings.size)]) : null;
+            var blob;
+            if (loadingType === 'upload') {
+                blob = new Blob([new ArrayBuffer(dataSettings.size)]);
+                var form = new FormData();
+                form.append("upload-file.raw", blob);
+                blob = form;
+            } else {
+                blob = null;
+            }
 
-            var type = loadingType == 'download' ? 'GET' : 'POST';
+            var type = loadingType === 'download' ? 'GET' : 'POST';
 
             // Initiate and send a new request
             this._newRequest(type, {
